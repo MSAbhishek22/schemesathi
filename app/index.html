@@ -1,0 +1,577 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SchemeSathi — Which sarkari schemes are actually yours?</title>
+<style>
+  :root{
+    --paper:#FBF6EC; --card:#FFFDF7; --ink:#1E2420; --ink-soft:#4A524C;
+    --green:#14532D; --green-deep:#0E3B20; --green-soft:#E4EFE6;
+    --marigold:#E8821A; --marigold-soft:#FDF0DA; --saffron:#F59E0B;
+    --line:#D8CDB4; --red:#9B2C2C; --red-soft:#FBEAEA; --amber:#8A6D00;
+    --amber-soft:#FBF3D0; --blue:#1D4E89; --blue-soft:#E8EFF7;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);
+    font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;}
+  .tricolour{height:5px;background:linear-gradient(90deg,#F59E0B 0 33%,#FBF6EC 33% 66%,#14532D 66% 100%);}
+  header.top{max-width:1180px;margin:0 auto;padding:28px 20px 8px;}
+  header.top h1{font-family:Georgia,"Times New Roman",serif;font-size:40px;margin:0;color:var(--green-deep);line-height:1.05;}
+  header.top h1 .hi{font-size:22px;color:var(--marigold);display:block;margin-top:2px;}
+  header.top p.tag{font-size:17px;color:var(--ink-soft);max-width:640px;margin:10px 0 0;}
+  .privacy{display:inline-block;margin-top:12px;background:var(--green-soft);color:var(--green-deep);
+    border:1px solid #B9D2BE;border-radius:999px;padding:5px 12px;font-size:13px;font-weight:600;}
+  main{max-width:1180px;margin:0 auto;padding:16px 20px 60px;}
+  .grid{display:grid;grid-template-columns:380px 1fr;gap:20px;align-items:start;}
+  @media (max-width:900px){.grid{grid-template-columns:1fr}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;box-shadow:0 1px 0 rgba(30,36,32,.05);}
+  .card h2{font-family:Georgia,serif;font-size:20px;margin:0 0 6px;color:var(--green-deep);}
+  .card h3{font-size:13px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-soft);margin:18px 0 8px;}
+  label{display:block;font-weight:600;font-size:14px;margin:12px 0 4px;}
+  label .hint{font-weight:400;color:var(--ink-soft);font-size:13px;}
+  textarea,input[type=number],select{width:100%;border:1.5px solid var(--line);border-radius:10px;
+    padding:10px 12px;font:inherit;background:#fff;color:var(--ink);}
+  textarea{min-height:110px;resize:vertical;}
+  textarea:focus,input:focus,select:focus,button:focus-visible{outline:3px solid var(--marigold);outline-offset:1px;}
+  .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin-top:12px;}
+  fieldset legend{font-weight:700;font-size:14px;padding:0 6px;}
+  .checks{display:grid;grid-template-columns:1fr 1fr;gap:4px 10px;}
+  .checks label{font-weight:400;margin:0;display:flex;gap:7px;align-items:center;font-size:14px;padding:3px 0;}
+  button{font:inherit;cursor:pointer;border-radius:10px;border:1.5px solid var(--green);}
+  button.primary{background:var(--green);color:#fff;font-weight:700;padding:12px 18px;width:100%;margin-top:16px;font-size:16px;}
+  button.primary:hover{background:var(--green-deep);}
+  button.primary:disabled{opacity:.55;cursor:wait;}
+  button.ghost{background:#fff;color:var(--green);padding:7px 12px;font-size:14px;font-weight:600;}
+  button.ghost:hover{background:var(--green-soft);}
+  button.ghost[aria-pressed="true"]{background:var(--green);color:#fff;}
+  .examples{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;}
+  .examples button{background:#fff;border-color:var(--line);color:var(--ink);padding:6px 10px;font-size:13px;border-radius:999px;}
+  .examples button:hover{border-color:var(--marigold);}
+  .parsed{background:var(--green-soft);border:1px solid #B9D2BE;border-radius:10px;
+    padding:10px 12px;font-size:14px;margin-top:14px;display:none;}
+  .parsed b{color:var(--green-deep);}
+  .parsed .edit-note{color:var(--ink-soft);font-size:13px;}
+  /* ---- Mandala (3D) ---- */
+  .mandala-wrap{text-align:center;padding:6px 0 2px;}
+  .stage{height:230px;perspective:900px;position:relative;overflow:hidden;}
+  .ring{position:absolute;left:50%;top:50%;width:0;height:0;transform-style:preserve-3d;
+    transition:transform .7s cubic-bezier(.22,1,.36,1);}
+  .face{position:absolute;width:132px;margin-left:-66px;margin-top:-34px;height:68px;
+    display:flex;flex-direction:column;justify-content:center;align-items:center;
+    background:var(--card);border:2px solid var(--green);border-radius:12px;
+    font-size:13px;font-weight:700;color:var(--green-deep);cursor:pointer;
+    backface-visibility:hidden;padding:4px 6px;text-align:center;}
+  .face small{font-weight:400;color:var(--ink-soft);font-size:11px;}
+  .face:hover,.face:focus-visible{border-color:var(--marigold);outline:none;}
+  .face.active{background:var(--green);color:#fff;}
+  .face.active small{color:#D9EADF;}
+  .mandala-nav{display:flex;gap:8px;justify-content:center;margin-top:4px;align-items:center;flex-wrap:wrap;}
+  .mandala-nav button{background:#fff;border-color:var(--line);padding:6px 12px;font-size:14px;}
+  .mandala-note{font-size:13px;color:var(--ink-soft);margin-top:8px;}
+  .flat-cats{display:none;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:8px;}
+  .flat-cats button{background:#fff;border:1.5px solid var(--line);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:600;}
+  .flat-cats button[aria-pressed="true"]{background:var(--green);color:#fff;border-color:var(--green);}
+  @media (prefers-reduced-motion: reduce){
+    .ring{transition:none;}
+    .stage{display:none;}
+    .flat-cats{display:flex;}
+    .mandala-note .motion-note{display:none;}
+  }
+  /* ---- Results ---- */
+  .summary{display:flex;flex-wrap:wrap;gap:10px;margin:4px 0 14px;}
+  .stat{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 14px;font-size:14px;}
+  .stat b{font-size:20px;display:block;line-height:1.1;}
+  .stat.ok b{color:var(--green);} .stat.close b{color:var(--amber);} .stat.info b{color:var(--blue);} .stat.no b{color:var(--red);}
+  .filters{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px;}
+  .filters button{background:#fff;border-color:var(--line);padding:6px 12px;font-size:13px;font-weight:600;}
+  .filters button[aria-pressed="true"]{background:var(--green-deep);color:#fff;border-color:var(--green-deep);}
+  .scheme{border:1px solid var(--line);border-radius:var(--radius);background:#fff;margin-bottom:12px;overflow:hidden;}
+  .scheme-head{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;cursor:pointer;border:0;background:#fff;width:100%;text-align:left;}
+  .scheme-head:hover{background:#FDFBF4;}
+  .verdict{flex:none;font-size:12px;font-weight:800;letter-spacing:.04em;border-radius:999px;padding:5px 10px;margin-top:2px;white-space:nowrap;}
+  .verdict.ELIGIBLE{background:var(--green-soft);color:var(--green-deep);border:1px solid #B9D2BE;}
+  .verdict.CLOSE{background:var(--amber-soft);color:var(--amber);border:1px solid #E3D38A;}
+  .verdict.NEEDS-INFO{background:var(--blue-soft);color:var(--blue);border:1px solid #B9CCE0;}
+  .verdict.NOT-ELIGIBLE{background:var(--red-soft);color:var(--red);border:1px solid #EFC5C5;}
+  .scheme-head .ttl{flex:1;min-width:0;}
+  .scheme-head .ttl strong{font-family:Georgia,serif;font-size:17px;color:var(--green-deep);display:block;}
+  .scheme-head .ttl span{font-size:13px;color:var(--ink-soft);}
+  .scheme-head .benefit{font-size:14px;margin-top:4px;}
+  .scheme-body{display:none;border-top:1px dashed var(--line);padding:14px 16px;}
+  .scheme.open .scheme-body{display:block;}
+  .scheme-body p{margin:6px 0;}
+  .trace{list-style:none;margin:10px 0;padding:0;font-size:14px;}
+  .trace li{padding:5px 8px;border-left:4px solid var(--line);margin-bottom:5px;background:#FDFBF4;}
+  .trace li.pass{border-color:var(--green);}
+  .trace li.fail{border-color:var(--red);background:var(--red-soft);}
+  .trace li.unknown{border-color:var(--blue);background:var(--blue-soft);}
+  .trace .mark{font-weight:800;margin-right:6px;}
+  .trace li.pass .mark{color:var(--green);} .trace li.fail .mark{color:var(--red);} .trace li.unknown .mark{color:var(--blue);}
+  .trace .why{color:var(--ink-soft);font-size:13px;display:block;}
+  .close-tip{background:var(--amber-soft);border:1px solid #E3D38A;border-radius:10px;padding:10px 12px;font-size:14px;margin:10px 0;}
+  .docs-steps{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;}
+  @media (max-width:700px){.docs-steps{grid-template-columns:1fr}}
+  .docs-steps h4{margin:0 0 6px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft);}
+  .docs-steps ul,.docs-steps ol{margin:0;padding-left:20px;font-size:14px;}
+  .scheme-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .empty{border:1.5px dashed var(--line);border-radius:var(--radius);padding:28px 20px;text-align:center;color:var(--ink-soft);background:#fff;}
+  .empty b{color:var(--green-deep);font-family:Georgia,serif;font-size:18px;display:block;margin-bottom:4px;}
+  .whatif{margin-top:18px;}
+  .whatif input[type=range]{width:100%;accent-color:var(--green);}
+  .whatif .val{font-weight:700;color:var(--green-deep);}
+  .error{background:var(--red-soft);border:1px solid #EFC5C5;color:var(--red);border-radius:10px;padding:10px 12px;margin-bottom:12px;display:none;}
+  footer{max-width:1180px;margin:0 auto;padding:0 20px 40px;color:var(--ink-soft);font-size:13px;}
+  footer a{color:var(--green);}
+  .sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;}
+</style>
+</head>
+<body>
+<div class="tricolour" aria-hidden="true"></div>
+<header class="top">
+  <h1>SchemeSathi <span class="hi">योजना साथी — sarkari schemes, in your own words</span></h1>
+  <p class="tag">Describe your situation in plain English or Hinglish. SchemeSathi understands it,
+    checks <strong id="scheme-count">18</strong> real government schemes rule by rule, and tells you
+    <strong>which ones are yours, which ones you are close to, and exactly why</strong> — with the
+    documents and the next step for each.</p>
+  <span class="privacy">🔒 Fully on-device · No account · No upload · Nothing you type leaves this machine</span>
+</header>
+
+<main>
+  <div class="grid">
+    <!-- ============ LEFT: tell us about yourself ============ -->
+    <section class="card" aria-label="Tell us about yourself">
+      <h2>1 · Tell us about yourself</h2>
+      <p style="margin:0 0 4px;font-size:14px;color:var(--ink-soft)">Type it like you'd tell a friend.
+        Or fill the boxes below — both work, and you can correct anything it understands.</p>
+
+      <label for="freetext">Describe your situation</label>
+      <textarea id="freetext" placeholder="e.g. I am a 19 year old student from Meerut. My family income is 2 lakh per year. I want a scholarship for college."></textarea>
+
+      <div class="examples" aria-label="Try an example">
+        <span style="font-size:13px;color:var(--ink-soft);align-self:center">Try:</span>
+        <button type="button" data-example="student">🎓 Student, Meerut</button>
+        <button type="button" data-example="farmer">🌾 Farmer, 2 acres</button>
+        <button type="button" data-example="vendor">🛒 Street vendor</button>
+        <button type="button" data-example="daughter">👧 Daughter, 7 yrs</button>
+      </div>
+
+      <button class="primary" id="check-btn" type="button">Check my schemes →</button>
+      <button class="ghost" id="clear-btn" type="button" style="margin-top:8px;width:100%">Clear everything</button>
+
+      <div class="parsed" id="parsed" role="status"></div>
+
+      <h3>Or fill it in directly</h3>
+      <div class="row2">
+        <div><label for="age">Age <span class="hint">(years)</span></label>
+          <input type="number" id="age" min="0" max="120" inputmode="numeric" placeholder="e.g. 19"></div>
+        <div><label for="income">Family income <span class="hint">(₹ / year)</span></label>
+          <input type="number" id="income" min="0" step="1000" inputmode="numeric" placeholder="e.g. 200000"></div>
+      </div>
+      <div class="row2">
+        <div><label for="gender">Gender</label>
+          <select id="gender"><option value="">— not saying —</option><option value="female">Female</option><option value="male">Male</option></select></div>
+        <div><label for="occupation">Occupation</label>
+          <select id="occupation">
+            <option value="">— not saying —</option>
+            <option value="student">Student</option><option value="farmer">Farmer</option>
+            <option value="vendor">Street vendor</option><option value="artisan">Artisan / craftsperson</option>
+            <option value="entrepreneur">Business / entrepreneur</option>
+            <option value="self_employed">Self-employed</option>
+            <option value="unemployed">Unemployed</option>
+            <option value="unorganised_worker">Daily-wage / unorganised worker</option>
+            <option value="school_dropout">School dropout</option>
+          </select></div>
+      </div>
+      <label for="state">State</label>
+      <select id="state"><option value="">— not saying —</option></select>
+
+      <fieldset><legend>Your situation — tick what applies</legend>
+        <div class="checks" id="flag-checks"></div>
+      </fieldset>
+      <p style="font-size:13px;color:var(--ink-soft);margin:10px 0 0">Only tick what is true. Anything
+        unticked is treated as "not mentioned", never as "no" — a scheme that needs that detail will say
+        <b>NEEDS INFO</b> instead of guessing.</p>
+    </section>
+
+    <!-- ============ RIGHT: mandala + results ============ -->
+    <section aria-label="Your schemes">
+      <div class="card" style="margin-bottom:20px">
+        <h2>2 · Explore by category</h2>
+        <div class="mandala-wrap">
+          <div class="stage" id="stage" aria-label="Scheme categories, 3D ring. Use the previous and next buttons or arrow keys to turn it.">
+            <div class="ring" id="ring"></div>
+          </div>
+          <div class="flat-cats" id="flat-cats" role="group" aria-label="Scheme categories"></div>
+          <div class="mandala-nav">
+            <button type="button" id="ring-prev" aria-label="Previous category">← Prev</button>
+            <button type="button" id="ring-spin" aria-pressed="false">▶ Auto-turn</button>
+            <button type="button" id="ring-next" aria-label="Next category">Next →</button>
+            <button type="button" id="ring-all" class="ghost">Show all</button>
+          </div>
+          <p class="mandala-note"><span class="motion-note">Drag the ring, or use ← → keys. </span>
+            Click a category to filter your results. The ring is only a way to look around —
+            every category is also listed below it as plain buttons.</p>
+        </div>
+      </div>
+
+      <div class="error" id="error" role="alert"></div>
+
+      <div id="results-area">
+        <div class="empty" id="empty-state">
+          <b>Your schemes will appear here</b>
+          Describe yourself on the left and press “Check my schemes”.
+          You will get three honest lists: <b style="display:inline;font-size:14px">yours</b>,
+          <b style="display:inline;font-size:14px">close — with what would change it</b>, and
+          <b style="display:inline;font-size:14px">not yours — with the exact reason</b>.
+        </div>
+      </div>
+
+      <div class="card whatif" id="whatif-card" style="display:none">
+        <h2>3 · What-if simulator</h2>
+        <p style="margin:0 0 8px;font-size:14px;color:var(--ink-soft)">Change one thing and see what opens up.
+          Nothing is saved — this is just arithmetic on the same rules.</p>
+        <label for="wi-income">Family income: <span class="val" id="wi-income-val">—</span></label>
+        <input type="range" id="wi-income" min="0" max="2000000" step="50000" value="200000">
+        <label for="wi-age">Age: <span class="val" id="wi-age-val">—</span></label>
+        <input type="range" id="wi-age" min="0" max="100" step="1" value="19">
+        <p style="font-size:14px;margin:10px 0 0" id="wi-result" role="status"></p>
+      </div>
+    </section>
+  </div>
+</main>
+
+<footer>
+  <p>Scheme data is a curated snapshot as of <span id="data-asof">November 2026</span> — amounts and
+    income caps change. <strong>Always verify the current criteria on the official portal before applying:</strong>
+    <a href="https://www.myscheme.gov.in" target="_blank" rel="noopener">myscheme.gov.in</a> (Government of India).
+    SchemeSathi is an independent demo built for SLAY HACKS 2026; it is not a government service and its verdicts
+    are guidance, not an official eligibility decision. No personal data is collected, stored or sent anywhere.</p>
+</footer>
+
+<script>
+"use strict";
+const $ = s => document.querySelector(s);
+const $$ = s => Array.from(document.querySelectorAll(s));
+
+const FLAG_LABELS = [
+  ["landholding","I own farmland"],["girl_child","Girl child in the family"],
+  ["sc_st","SC / ST"],["bpl","BPL / very low income"],["no_lpg","No LPG connection at home"],
+  ["street_vendor","I am a street vendor"],["artisan","I practise a traditional craft"],
+  ["business_idea","I want to start a business"],["existing_business","I already run a business"],
+  ["rural","I live in a village"],["urban","I live in a city / town"],
+  ["kutcha_house","My house is kutcha"],["first_house","This would be my first house"],
+  ["pucca_house","I already own a pucca house"],["govt_employee","I am a govt employee"],
+  ["income_tax_payer","I pay income tax"],["class8","I am in / passed Class 8"],
+  ["post_matric","I study after Class 10"],["merit","I scored well / merit"],
+  ["woman_entrepreneur","Woman entrepreneur"],
+];
+const STATES = ["Uttar Pradesh","Bihar","Delhi","Maharashtra","Rajasthan","Madhya Pradesh",
+  "West Bengal","Tamil Nadu","Karnataka","Gujarat","Punjab","Haryana","Kerala","Odisha",
+  "Telangana","Andhra Pradesh"];
+const EXAMPLES = {
+  student: "I am a 19 year old student from Meerut, Uttar Pradesh. My family income is 2 lakh per year. I want a scholarship for college.",
+  farmer: "I am a 45 year old farmer from a village in Uttar Pradesh. I own 2 acres of land. My family income is 1.5 lakh per year.",
+  vendor: "I am a 32 year old street vendor in Delhi. I sell vegetables from a thela. My family income is 2.5 lakh per year.",
+  daughter: "My daughter is 7 years old. We live in Meerut. I want to save for her education. Family income is 3 lakh per year.",
+};
+
+let lastProfile = null, lastResults = null, activeCategory = "All", categories = [];
+
+/* ---------- build static controls ---------- */
+(function init(){
+  const fc = $("#flag-checks");
+  FLAG_LABELS.forEach(([key,label])=>{
+    const l = document.createElement("label");
+    l.innerHTML = `<input type="checkbox" data-flag="${key}"> ${label}`;
+    fc.appendChild(l);
+  });
+  const st = $("#state");
+  STATES.forEach(s=>{ const o=document.createElement("option"); o.value=s; o.textContent=s; st.appendChild(o); });
+  fetch("/api/schemes").then(r=>r.json()).then(d=>{
+    categories = d.categories || [];
+    $("#scheme-count").textContent = (d.schemes||[]).length;
+    $("#data-asof").textContent = d.data_as_of || "November 2026";
+    buildRing(); buildFlatCats(); buildFilters();
+  }).catch(()=>{ buildRing(); buildFlatCats(); buildFilters(); });
+})();
+
+/* ---------- 3D mandala ---------- */
+let ringAngle = 0, spinTimer = null;
+function buildRing(){
+  const ring = $("#ring"); ring.innerHTML = "";
+  const cats = ["All"].concat(categories.length?categories:["Agriculture","Business","Education","Finance","Health","Housing","Skills","Women & Child"]);
+  const n = cats.length, radius = 200;
+  cats.forEach((c,i)=>{
+    const f = document.createElement("button");
+    f.type="button"; f.className="face"; f.dataset.cat=c;
+    f.style.transform = `rotateY(${i*360/n}deg) translateZ(${radius}px)`;
+    f.innerHTML = `${c}<small>${c==="All"?"every scheme":"tap to filter"}</small>`;
+    f.addEventListener("click", ()=>{ setCategory(c); rotateTo(i); });
+    ring.appendChild(f);
+  });
+  ring.style.transform = `translateZ(-${radius}px) rotateY(${ringAngle}deg)`;
+  ring.dataset.count = n;
+  markActiveFace();
+}
+function rotateTo(i){
+  const n = parseInt($("#ring").dataset.count||"9",10);
+  ringAngle = -(i*360/n);
+  $("#ring").style.transform = `translateZ(-200px) rotateY(${ringAngle}deg)`;
+  markActiveFace();
+}
+function markActiveFace(){
+  const n = parseInt($("#ring").dataset.count||"9",10);
+  const idx = Math.round(((-ringAngle % 360)+360)%360 / (360/n)) % n;
+  $$("#ring .face").forEach((f,i)=>f.classList.toggle("active", i===idx));
+}
+function stepRing(dir){
+  const n = parseInt($("#ring").dataset.count||"9",10);
+  ringAngle += dir*(360/n);
+  $("#ring").style.transform = `translateZ(-200px) rotateY(${ringAngle}deg)`;
+  markActiveFace();
+}
+$("#ring-prev").addEventListener("click", ()=>stepRing(-1));
+$("#ring-next").addEventListener("click", ()=>stepRing(1));
+$("#ring-all").addEventListener("click", ()=>{ setCategory("All"); rotateTo(0); });
+$("#ring-spin").addEventListener("click", e=>{
+  const btn = e.currentTarget;
+  if (spinTimer){ clearInterval(spinTimer); spinTimer=null; btn.textContent="▶ Auto-turn"; btn.setAttribute("aria-pressed","false"); }
+  else { spinTimer=setInterval(()=>stepRing(1), 2600); btn.textContent="⏸ Stop turning"; btn.setAttribute("aria-pressed","true"); }
+});
+$("#stage").addEventListener("keydown", e=>{
+  if(e.key==="ArrowLeft"){ stepRing(-1); e.preventDefault(); }
+  if(e.key==="ArrowRight"){ stepRing(1); e.preventDefault(); }
+});
+/* drag to turn */
+(function(){
+  const stage = $("#stage"); let down=false, lastX=0;
+  stage.addEventListener("pointerdown", e=>{ down=true; lastX=e.clientX; stage.setPointerCapture(e.pointerId); });
+  stage.addEventListener("pointermove", e=>{
+    if(!down) return;
+    const dx = e.clientX - lastX; lastX = e.clientX;
+    ringAngle += dx*0.35;
+    $("#ring").style.transform = `translateZ(-200px) rotateY(${ringAngle}deg)`;
+  });
+  stage.addEventListener("pointerup", ()=>{ down=false; markActiveFace(); });
+})();
+if (window.matchMedia("(prefers-reduced-motion: reduce)").matches && spinTimer){ clearInterval(spinTimer); }
+
+function buildFlatCats(){
+  const box = $("#flat-cats"); box.innerHTML="";
+  const cats = ["All"].concat(categories.length?categories:["Agriculture","Business","Education","Finance","Health","Housing","Skills","Women & Child"]);
+  cats.forEach(c=>{
+    const b=document.createElement("button");
+    b.type="button"; b.textContent=c; b.dataset.cat=c; b.setAttribute("aria-pressed", c==="All"?"true":"false");
+    b.addEventListener("click", ()=>setCategory(c));
+    box.appendChild(b);
+  });
+}
+function setCategory(c){
+  activeCategory = c;
+  $$("#flat-cats button").forEach(b=>b.setAttribute("aria-pressed", String(b.dataset.cat===c)));
+  $$("#ring .face").forEach(f=>f.classList.toggle("active", f.dataset.cat===c));
+  if (lastResults) renderResults();
+}
+function buildFilters(){ /* filter chips live inside results header; built on render */ }
+
+/* ---------- matching ---------- */
+function readFormProfile(){
+  const flags = {};
+  $$("#flag-checks input[type=checkbox]").forEach(cb=>{ flags[cb.dataset.flag]=cb.checked; });
+  return {
+    age: $("#age").value || null,
+    annual_income: $("#income").value || null,
+    gender: $("#gender").value || null,
+    occupation: $("#occupation").value || null,
+    state: $("#state").value || null,
+    ...flags,
+  };
+}
+function fillFormFromProfile(p){
+  if(p.age!=null) $("#age").value = p.age;
+  if(p.annual_income!=null) $("#income").value = p.annual_income;
+  if(p.gender) $("#gender").value = p.gender;
+  if(p.occupations && p.occupations.length) $("#occupation").value = p.occupations[0];
+  if(p.state) $("#state").value = p.state;
+  $$("#flag-checks input[type=checkbox]").forEach(cb=>{ cb.checked = (p.flags||[]).includes(cb.dataset.flag); });
+}
+function showError(msg){
+  const el=$("#error"); el.textContent=msg; el.style.display = msg?"block":"none";
+}
+function inr(n){ return "₹" + Number(n).toLocaleString("en-IN"); }
+
+async function runMatch(){
+  const text = $("#freetext").value.trim();
+  const form = readFormProfile();
+  const hasForm = form.age || form.annual_income || form.gender || form.occupation ||
+    Object.values(form).some(v=>v===true);
+  if(!text && !hasForm){ showError("Tell us a little first — type a sentence, or fill in age / income / occupation."); return; }
+  showError("");
+  const btn=$("#check-btn"); btn.disabled=true; btn.textContent="Checking schemes…";
+  try{
+    const payload = text ? {text} : {profile: form};
+    const res = await fetch("/api/match", {method:"POST", headers:{"Content-Type":"application/json"}, body: JSON.stringify(payload)});
+    if(!res.ok) throw new Error("Server returned " + res.status);
+    const data = await res.json();
+    lastProfile = data.profile; lastResults = data.results;
+    fillFormFromProfile(data.profile);
+    showParsed(data.profile, text);
+    renderResults();
+    setupWhatIf(data.profile);
+  }catch(err){
+    showError("Could not reach the checker ("+err.message+"). Is the server running? Try: python3 run.py");
+  }finally{
+    btn.disabled=false; btn.textContent="Check my schemes →";
+  }
+}
+function showParsed(p, text){
+  const el=$("#parsed");
+  const bits=[];
+  if(p.age!=null) bits.push("Age <b>"+p.age+"</b>");
+  if(p.annual_income!=null) bits.push("Income <b>"+inr(p.annual_income)+"/yr</b>");
+  if(p.gender) bits.push("Gender <b>"+p.gender+"</b>");
+  if(p.occupations.length) bits.push("Occupation <b>"+p.occupations.join(", ")+"</b>");
+  if(p.state) bits.push("State <b>"+p.state+"</b>");
+  if(p.flags.length) bits.push("Situation <b>"+p.flags.join(", ").replaceAll("_"," ")+"</b>");
+  el.style.display="block";
+  el.innerHTML = (text? "Understood from your words: " : "Using your form: ") +
+    (bits.length? bits.join(" · ") : "nothing I could use — try adding age, income or occupation.") +
+    '<br><span class="edit-note">Wrong or incomplete? Correct the boxes on the left and press “Check my schemes” again.</span>';
+}
+function verdictClass(v){ return v.replace(" ","-"); }
+function renderResults(){
+  const area=$("#results-area");
+  if(!lastResults){ return; }
+  const list = activeCategory==="All" ? lastResults : lastResults.filter(r=>r.scheme.category===activeCategory);
+  const s = lastResults.reduce((a,r)=>{a[r.verdict]=(a[r.verdict]||0)+1;return a;},{});
+  const counts = {ELIGIBLE:s["ELIGIBLE"]||0, CLOSE:s["CLOSE"]||0, "NEEDS INFO":s["NEEDS INFO"]||0, "NOT ELIGIBLE":s["NOT ELIGIBLE"]||0};
+  let html = `<div class="summary" role="status">
+    <div class="stat ok"><b>${counts.ELIGIBLE}</b>yours ✓</div>
+    <div class="stat close"><b>${counts.CLOSE}</b>close — almost yours</div>
+    <div class="stat info"><b>${counts["NEEDS INFO"]}</b>need one more detail</div>
+    <div class="stat no"><b>${counts["NOT ELIGIBLE"]}</b>not yours</div>
+  </div>`;
+  html += `<div class="filters" role="group" aria-label="Filter by verdict">
+    <button type="button" data-v="ALL" aria-pressed="true">All ${lastResults.length}</button>
+    <button type="button" data-v="ELIGIBLE" aria-pressed="false">✓ Yours (${counts.ELIGIBLE})</button>
+    <button type="button" data-v="CLOSE" aria-pressed="false">◐ Close (${counts.CLOSE})</button>
+    <button type="button" data-v="NEEDS INFO" aria-pressed="false">? Need info (${counts["NEEDS INFO"]})</button>
+    <button type="button" data-v="NOT ELIGIBLE" aria-pressed="false">✕ Not yours (${counts["NOT ELIGIBLE"]})</button>
+  </div>`;
+  html += `<div id="scheme-list">` + list.map(schemeHTML).join("") + `</div>`;
+  if(!list.length) html += `<div class="empty"><b>No schemes in this category</b>Try “Show all” on the ring, or another category.</div>`;
+  html += `<p style="font-size:13px;color:var(--ink-soft)">Verdicts are guidance from the published rules, not an official decision.
+    Verify each scheme on <a href="https://www.myscheme.gov.in" target="_blank" rel="noopener">myscheme.gov.in</a> before applying.</p>`;
+  area.innerHTML = html;
+  $$("#results-area .filters button").forEach(b=>b.addEventListener("click", ()=>{
+    $$("#results-area .filters button").forEach(x=>x.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");
+    const v=b.dataset.v;
+    const shown = v==="ALL" ? list : list.filter(r=>r.verdict===v);
+    $("#scheme-list").innerHTML = shown.map(schemeHTML).join("") || `<div class="empty"><b>Nothing here</b>No scheme has this verdict for your profile.</div>`;
+    wireSchemeCards();
+  }));
+  wireSchemeCards();
+}
+function schemeHTML(r){
+  const s=r.scheme;
+  const trace = r.checks.map(c=>{
+    const cls = c.passed===true?"pass":c.passed===false?"fail":"unknown";
+    const mark = c.passed===true?"✓":c.passed===false?"✕":"?";
+    return `<li class="${cls}"><span class="mark">${mark}</span>${c.label}<span class="why">${c.detail}</span></li>`;
+  }).join("");
+  const failed = r.checks.filter(c=>c.passed===false);
+  const closeTip = r.verdict==="CLOSE" && failed.length===1
+    ? `<div class="close-tip"><b>What would change it:</b> ${closeAdvice(s, failed[0])}</div>` : "";
+  const needInfo = r.verdict==="NEEDS INFO"
+    ? `<div class="close-tip" style="background:var(--blue-soft);border-color:#B9CCE0"><b>One more detail needed:</b> ${r.missing.join(", ")} — add it on the left and check again.</div>` : "";
+  return `<article class="scheme" data-id="${s.id}">
+    <button type="button" class="scheme-head" aria-expanded="false">
+      <span class="verdict ${verdictClass(r.verdict)}">${r.verdict==="NEEDS INFO"?"NEEDS INFO":r.verdict}</span>
+      <span class="ttl"><strong>${s.name}</strong>
+        <span>${s.name_hi} · ${s.ministry} · ${s.category}</span>
+        <span class="benefit">${s.benefit}</span></span>
+      <span aria-hidden="true">▾</span>
+    </button>
+    <div class="scheme-body">
+      <p>${s.blurb}</p>
+      <h4 style="margin:12px 0 4px;font-size:13px;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-soft)">Why this verdict — rule by rule</h4>
+      <ul class="trace">${trace}</ul>
+      ${closeTip}${needInfo}
+      <div class="docs-steps">
+        <div><h4>Documents you will need</h4><ul>${s.docs.map(d=>`<li>${d}</li>`).join("")}</ul></div>
+        <div><h4>How to apply</h4><ol>${s.steps.map(d=>`<li>${d}</li>`).join("")}</ol></div>
+      </div>
+      <div class="scheme-actions">
+        <button type="button" class="ghost" data-copy="${s.id}">⧉ Copy checklist</button>
+        <a class="ghost" style="text-decoration:none;display:inline-block;padding:7px 12px" href="https://www.myscheme.gov.in" target="_blank" rel="noopener">Verify on myscheme.gov.in ↗</a>
+      </div>
+    </div>
+  </article>`;
+}
+function closeAdvice(s, failed){
+  const label = failed.label;
+  if(label.includes("income")) return "This scheme caps family income — if your income were a little lower, or if you can show the correct income certificate, it may open up. Re-run the what-if simulator below with a lower income to see.";
+  if(label.startsWith("Age")) return "You are just outside the age window for this scheme. Check the exact age rule on the official portal — some schemes count age on a specific cut-off date.";
+  return "Fix the one failing rule above (" + failed.label + ") and this scheme opens up.";
+}
+function wireSchemeCards(){
+  $$("#results-area .scheme-head").forEach(h=>h.addEventListener("click", ()=>{
+    const card=h.closest(".scheme");
+    card.classList.toggle("open");
+    h.setAttribute("aria-expanded", String(card.classList.contains("open")));
+  }));
+  $$("#results-area [data-copy]").forEach(b=>b.addEventListener("click", async ()=>{
+    const id=b.dataset.copy;
+    const r=(lastResults||[]).find(x=>x.scheme.id===id);
+    if(!r) return;
+    const s=r.scheme;
+    const text = `${s.name} (${s.name_hi})\nBenefit: ${s.benefit}\nVerdict for you: ${r.verdict}\n\nDocuments:\n${s.docs.map(d=>"- "+d).join("\n")}\n\nHow to apply:\n${s.steps.map((d,i)=>(i+1)+". "+d).join("\n")}\n\nVerify on: https://www.myscheme.gov.in`;
+    try{ await navigator.clipboard.writeText(text); b.textContent="✓ Copied!"; setTimeout(()=>{b.textContent="⧉ Copy checklist";},1800); }
+    catch(e){ b.textContent="Copy failed — select the text manually"; }
+  }));
+}
+
+/* ---------- what-if ---------- */
+function setupWhatIf(p){
+  const card=$("#whatif-card"); card.style.display="block";
+  const wi=$("#wi-income"), wa=$("#wi-age");
+  wi.value = p.annual_income!=null ? p.annual_income : 200000;
+  wa.value = p.age!=null ? p.age : 19;
+  const run = async ()=>{
+    $("#wi-income-val").textContent = inr(wi.value)+"/yr";
+    $("#wi-age-val").textContent = wa.value+" years";
+    const res = await fetch("/api/whatif", {method:"POST", headers:{"Content-Type":"application/json"},
+      body: JSON.stringify({profile: lastProfile, overrides:{annual_income:+wi.value, age:+wa.value}})});
+    const data = await res.json();
+    const n = data.summary["ELIGIBLE"]||0, c = data.summary["CLOSE"]||0;
+    $("#wi-result").innerHTML = `At <b>${inr(wi.value)}/yr</b> and age <b>${wa.value}</b>: <b>${n} scheme${n===1?"":"s"} yours</b>, ${c} close.`;
+  };
+  wi.oninput=run; wa.oninput=run; run();
+}
+
+/* ---------- wiring ---------- */
+$("#check-btn").addEventListener("click", runMatch);
+$("#freetext").addEventListener("keydown", e=>{
+  if((e.ctrlKey||e.metaKey) && e.key==="Enter"){ runMatch(); }
+});
+$$(".examples button").forEach(b=>b.addEventListener("click", ()=>{
+  $("#freetext").value = EXAMPLES[b.dataset.example];
+  runMatch();
+}));
+$("#clear-btn").addEventListener("click", ()=>{
+  $("#freetext").value=""; $("#age").value=""; $("#income").value=""; $("#gender").value="";
+  $("#occupation").value=""; $("#state").value="";
+  $$("#flag-checks input[type=checkbox]").forEach(cb=>cb.checked=false);
+  lastProfile=null; lastResults=null; activeCategory="All";
+  $("#parsed").style.display="none"; $("#whatif-card").style.display="none"; showError("");
+  $("#results-area").innerHTML = `<div class="empty" id="empty-state"><b>Your schemes will appear here</b>Describe yourself on the left and press “Check my schemes”.</div>`;
+  setCategory("All");
+});
+</script>
+</body>
+</html>
