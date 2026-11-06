@@ -1,0 +1,15 @@
+[project]
+name = "schemesathi"
+version = "0.1.0"
+requires-python = ">=3.12"
+dependencies = []
+
+# Vercel entrypoint: the Python runtime loads `application` from
+# wsgi.py and routes EVERY request to it with the original path, so
+# the app deploys as-is — no vercel.json rewrite. (A rewrite to
+# /api/index used to mask every path as PATH_INFO=/api/index and made
+# the live NoteVault Bharat app 404 on / and every other path; see
+# deployment/DEPLOYMENT_RUNBOOK.md and
+# tests/test_vercel_routing_regression.py.)
+[tool.vercel]
+entrypoint = "wsgi:application"
