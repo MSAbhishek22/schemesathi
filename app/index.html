@@ -446,7 +446,7 @@ function verdictClass(v){ return v.replace(" ","-"); }
 function renderResults(){
   const area=$("#results-area");
   if(!lastResults){ return; }
-  const list = activeCategory==="All" ? lastResults : lastResults.filter(r=>r.scheme.category===activeCategory);
+  const list = activeCategory==="All" ? lastResults : lastResults.filter(r=>r.category===activeCategory);
   const s = lastResults.reduce((a,r)=>{a[r.verdict]=(a[r.verdict]||0)+1;return a;},{});
   const counts = {ELIGIBLE:s["ELIGIBLE"]||0, CLOSE:s["CLOSE"]||0, "NEEDS INFO":s["NEEDS INFO"]||0, "NOT ELIGIBLE":s["NOT ELIGIBLE"]||0};
   let html = `<div class="summary" role="status">
@@ -478,7 +478,7 @@ function renderResults(){
   wireSchemeCards();
 }
 function schemeHTML(r){
-  const s=r.scheme;
+  const s=r;
   const trace = r.checks.map(c=>{
     const cls = c.passed===true?"pass":c.passed===false?"fail":"unknown";
     const mark = c.passed===true?"✓":c.passed===false?"✕":"?";
@@ -527,9 +527,9 @@ function wireSchemeCards(){
   }));
   $$("#results-area [data-copy]").forEach(b=>b.addEventListener("click", async ()=>{
     const id=b.dataset.copy;
-    const r=(lastResults||[]).find(x=>x.scheme.id===id);
+    const r=(lastResults||[]).find(x=>x.id===id);
     if(!r) return;
-    const s=r.scheme;
+    const s=r;
     const text = `${s.name} (${s.name_hi})\nBenefit: ${s.benefit}\nVerdict for you: ${r.verdict}\n\nDocuments:\n${s.docs.map(d=>"- "+d).join("\n")}\n\nHow to apply:\n${s.steps.map((d,i)=>(i+1)+". "+d).join("\n")}\n\nVerify on: https://www.myscheme.gov.in`;
     try{ await navigator.clipboard.writeText(text); b.textContent="✓ Copied!"; setTimeout(()=>{b.textContent="⧉ Copy checklist";},1800); }
     catch(e){ b.textContent="Copy failed — select the text manually"; }
