@@ -1,6 +1,9 @@
 # SchemeSathi — Which sarkari schemes are actually yours?
 
 **SLAY HACKS 2026** · solo · fresh build · free-only · on-device
+Also entered in **GenHacks** (submitted 12 Nov 2026).
+Live: **https://schemesathi-kappa.vercel.app** · Repo: https://github.com/MSAbhishek22/schemesathi ·
+Demo video: https://www.youtube.com/watch?v=e0H6pNcQEhs
 
 Describe your life in one sentence — in English or Hinglish — and
 SchemeSathi checks **18 real Indian government schemes** rule by rule and
@@ -51,13 +54,16 @@ change the port.
 ## Tests
 
 ```bash
-python3 -m unittest discover -s tests -v
+python3 -m pytest tests/ -q
 ```
 
-25 tests, all passing on Linux (5 Nov 2026): parser (incl. the
+42 tests, all passing (re-verified 13 Nov 2026): parser (incl. the
 "school must not trigger the SC flag" and "70000 must not trigger
 senior70" traps), matcher (eligible / close / hard-no / needs-info),
-what-if flips, and trace completeness.
+what-if flips, trace completeness, and the frontend/Vercel entrypoint
+and routing suites. (25 of the tests also run under plain
+`python3 -m unittest discover -s tests`; the remaining modules import
+pytest.)
 
 ## Data honesty
 
@@ -71,7 +77,9 @@ are guidance, not an official eligibility decision.
 ## Status
 
 `IN_PROGRESS` under the ABHI_22 rulebook — Gates A–D pass (research,
-design, working product, QA on Linux); Gate E is BLOCKED on a live
-deployment (needs the user's Render free-tier signup — no card, stop if
-one is asked) and Gate F on the demo video, which must be recorded from
-the live URL. See `RELEASE_CARD.md` for the full gate table.
+design, working product, QA on Linux). Gate E passed on Vercel (not
+Render): **live at https://schemesathi-kappa.vercel.app**, verified
+13 Nov 2026. Gate F passed: the demo video
+(https://www.youtube.com/watch?v=e0H6pNcQEhs) was recorded from the
+live URL. Submitted to SLAY HACKS 2026 on 7 Nov 2026 and to GenHacks
+on 12 Nov 2026. See `RELEASE_CARD.md` for the full gate table.
