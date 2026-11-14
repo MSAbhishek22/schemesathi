@@ -1,3 +1,19 @@
+<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1f6feb,100:8957e5&height=190&section=header&text=SchemeSathi&fontSize=44&fontColor=ffffff&animation=fadeIn&desc=Sarkari%20schemes%2C%20explained%20in%20Hinglish%2C%20matched%20to%20you&descSize=16"/>
+
+> **📖 The Story** India runs hundreds of welfare schemes, and the citizens they exist for often never hear of them — eligibility hides inside English portals, PDFs and office visits. SchemeSathi is the Hinglish companion he built so a citizen can simply ask, in the language they think in, "mere liye kya hai?" It has since been entered in SLAY, UKIS 2026 and AI Kaushal.
+>
+> **🎯 The Problem** Eligible citizens miss benefits they are owed because finding, understanding and trusting scheme information is harder than the application itself.
+>
+> **👥 Who It's For** Citizens — especially first-time, Hindi-speaking applicants — and the families and helpers who apply on their behalf.
+>
+> **🔑 The USP** A Hinglish-first scheme navigator: ask in your own words, get matched to the schemes that are actually yours.
+>
+> **🚀 What's Next** More schemes, more languages, and a shorter path from "am I eligible?" to a submitted application.
+>
+> **🔗 Live: [schemesathi-kappa.vercel.app](https://schemesathi-kappa.vercel.app)**
+
+---
+
 # SchemeSathi — Which sarkari schemes are actually yours?
 
 **SLAY HACKS 2026** · solo · fresh build · free-only · on-device
