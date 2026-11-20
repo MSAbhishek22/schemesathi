@@ -4,6 +4,12 @@
 
 Type one line about your life — in English or Hinglish — and SchemeSathi checks 18 real government schemes rule by rule. It tells you which ones are yours, which ones you are close to, and exactly why the rest said no.
 
+## Screenshots
+
+![SchemeSathi home — tell us about yourself](docs/hero.png)
+
+![A real check: schemes you can get, and the ones you cannot](docs/feature.png)
+
 ## The problem
 
 India runs hundreds of welfare schemes, and the people they exist for often never hear of them. The official portal lists 4,700+ schemes, but you have to fill structured forms in the portal's language, and a "no" comes with no reason. So eligible people miss money and support they are owed, simply because finding out was too hard.
