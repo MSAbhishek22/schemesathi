@@ -1,62 +1,40 @@
-<img width="100%" src="https://capsule-render.vercel.app/api?type=waving&color=0:0d1117,50:1f6feb,100:8957e5&height=190&section=header&text=SchemeSathi&fontSize=44&fontColor=ffffff&animation=fadeIn&desc=Sarkari%20schemes%2C%20explained%20in%20Hinglish%2C%20matched%20to%20you&descSize=16"/>
+# SchemeSathi — which government schemes are actually yours
 
-> **📖 The Story** India runs hundreds of welfare schemes, and the citizens they exist for often never hear of them — eligibility hides inside English portals, PDFs and office visits. SchemeSathi is the Hinglish companion he built so a citizen can simply ask, in the language they think in, "mere liye kya hai?" It has since been entered in SLAY, UKIS 2026 and AI Kaushal.
->
-> **🎯 The Problem** Eligible citizens miss benefits they are owed because finding, understanding and trusting scheme information is harder than the application itself.
->
-> **👥 Who It's For** Citizens — especially first-time, Hindi-speaking applicants — and the families and helpers who apply on their behalf.
->
-> **🔑 The USP** A Hinglish-first scheme navigator: ask in your own words, get matched to the schemes that are actually yours.
->
-> **🚀 What's Next** More schemes, more languages, and a shorter path from "am I eligible?" to a submitted application.
->
-> **🔗 Live: [schemesathi-kappa.vercel.app](https://schemesathi-kappa.vercel.app)**
+**Live app: https://schemesathi-kappa.vercel.app** · Demo video: https://www.youtube.com/watch?v=e0H6pNcQEhs
 
----
+Type one line about your life — in English or Hinglish — and SchemeSathi checks 18 real government schemes rule by rule. It tells you which ones are yours, which ones you are close to, and exactly why the rest said no.
 
-# SchemeSathi — Which sarkari schemes are actually yours?
+## The problem
 
-**SLAY HACKS 2026** · solo · fresh build · free-only · on-device
-Also entered in **GenHacks** (submitted 12 Nov 2026).
-Live: **https://schemesathi-kappa.vercel.app** · Repo: https://github.com/MSAbhishek22/schemesathi ·
-Demo video: https://www.youtube.com/watch?v=e0H6pNcQEhs
+India runs hundreds of welfare schemes, and the people they exist for often never hear of them. The official portal lists 4,700+ schemes, but you have to fill structured forms in the portal's language, and a "no" comes with no reason. So eligible people miss money and support they are owed, simply because finding out was too hard.
 
-Describe your life in one sentence — in English or Hinglish — and
-SchemeSathi checks **18 real Indian government schemes** rule by rule and
-tells you which ones are yours, which ones you're close to, and *exactly
-why* for every one you're not. With the documents, the steps, and a
-what-if simulator that shows what would change the answer.
+## Who it is for, and who would pay
 
-## The gap it fills
+For first-time and Hindi-speaking applicants, and the families who apply on their behalf. It is free for them, and there is no login and nothing to upload.
 
-The official portal (myscheme.gov.in) already lists 4,700+ schemes. But:
-1. You have to speak the portal's language (structured forms), not yours.
-2. You only see what you match — a "no" comes with no reason.
-3. Applying is a second maze of documents and ministry sites.
+The paying side is the helpers around them: CSC operators, NGOs and local agents who file applications for many people every week and need a fast, clear answer on who qualifies for what.
 
-SchemeSathi answers in your words, explains every no, and hands you the
-checklist for the yeses. Nothing is uploaded, no account, no login.
+## What works today
 
-## How it works (honest AI)
+- **One-line intake.** Describe your life in your own words ("main ek chhota dukaan chalata hoon, income 1.5 lakh hai") or use the structured form and correct anything it understood wrong.
+- **18 real schemes, checked rule by rule.** Every scheme returns one of four plain verdicts — ELIGIBLE, CLOSE, NOT ELIGIBLE, NEEDS INFO — with the rule-by-rule reasons shown. A "close" tells you what would change the answer. Unknown is treated as a real answer, never a guessed yes or no.
+- **What-if simulator.** Move the income and age sliders and watch the matches change live.
+- **Documents and steps for every yes.** A checklist of documents and the application steps, ready to copy.
+- **Four example personas** — student, farmer, street vendor, daughter — so anyone can see a full result in one click: the verdicts, the reasons, and the checklist, end to end.
+- **Works offline.** No CDN, no webfonts, no external assets. Nothing leaves the device: the matching runs on-device, with no cloud model and no API key.
 
-Neurosymbolic, on-device — no cloud model, no API key:
-1. **NLP layer** parses plain English/Hinglish into a profile (age, income,
-   gender, occupation, state, life situation; lakh/crore and monthly figures
-   normalised).
-2. **Symbolic rules engine** evaluates every scheme deterministically and
-   returns a per-rule trace. Verdicts: `ELIGIBLE` / `CLOSE` / `NOT ELIGIBLE`
-   / `NEEDS INFO`. Unknown is a real answer, never a guessed yes/no.
+## The numbers
 
-## Features
+- 18 schemes, each checked rule by rule against your profile
+- 42 automated tests, all passing — parser, matcher (eligible / close / hard-no / needs-info), what-if flips, trace completeness, and the frontend and routing suites
+- 0 accounts, 0 uploads, 0 API keys
 
-- Plain-language intake + structured form (correct anything it understood)
-- 4 example personas (student / farmer / street vendor / daughter)
-- Rule-by-rule verdict traces; CLOSE schemes explain what would change it
-- What-if simulator (income + age sliders, live re-match)
-- Document checklists + application steps + one-click copy
-- **3D Scheme Mandala** — the 8 categories as a draggable CSS-3D ring,
-  with a flat button list as the reduced-motion fallback
-- Fully offline-capable: no CDN, no webfonts, no external assets
+## How it works
+
+1. An NLP layer reads plain English or Hinglish and builds a profile: age, income, gender, occupation, state, life situation. Lakh/crore and monthly figures are normalised.
+2. A symbolic rules engine then checks every scheme against that profile and returns a trace for each rule, so every verdict can be explained in plain words.
+
+The scheme figures are a curated snapshot as of November 2026. Amounts, income caps and age windows change, so the app says so on every screen and links each scheme to the official portal (https://www.myscheme.gov.in) to verify before applying. SchemeSathi is an independent project, not a government service; its verdicts are guidance, not an official decision.
 
 ## Run it
 
@@ -64,38 +42,20 @@ Neurosymbolic, on-device — no cloud model, no API key:
 python3 run.py          # serves http://127.0.0.1:8765
 ```
 
-Python 3.10+ stdlib only — no install step. Set `SCHEMESATHI_PORT` to
-change the port.
+Python 3.10+ standard library only — nothing to install. Set `SCHEMESATHI_PORT` to change the port.
 
-## Tests
+Tests:
 
 ```bash
 python3 -m pytest tests/ -q
 ```
 
-42 tests, all passing (re-verified 13 Nov 2026): parser (incl. the
-"school must not trigger the SC flag" and "70000 must not trigger
-senior70" traps), matcher (eligible / close / hard-no / needs-info),
-what-if flips, trace completeness, and the frontend/Vercel entrypoint
-and routing suites. (25 of the tests also run under plain
-`python3 -m unittest discover -s tests`; the remaining modules import
-pytest.)
+## Where this can go
 
-## Data honesty
+- More schemes and more languages, so the same one-line question works for more of India.
+- A helper mode for CSC operators and NGOs: many profiles, one desk, printable checklists.
+- A shorter path from "am I eligible?" to a filled application, with the official portal still the final step.
 
-Scheme figures are a **curated snapshot as of November 2026** — benefit
-amounts, income caps and age windows change. The app says so on every
-screen and links every scheme to the official portal
-(https://www.myscheme.gov.in) for verification before applying.
-SchemeSathi is an independent demo, not a government service; its verdicts
-are guidance, not an official eligibility decision.
+## Status and entries
 
-## Status
-
-`IN_PROGRESS` under the ABHI_22 rulebook — Gates A–D pass (research,
-design, working product, QA on Linux). Gate E passed on Vercel (not
-Render): **live at https://schemesathi-kappa.vercel.app**, verified
-13 Nov 2026. Gate F passed: the demo video
-(https://www.youtube.com/watch?v=e0H6pNcQEhs) was recorded from the
-live URL. Submitted to SLAY HACKS 2026 on 7 Nov 2026 and to GenHacks
-on 12 Nov 2026. See `RELEASE_CARD.md` for the full gate table.
+Built solo by M S Abhishek. Live on Vercel and verified on 13 Nov 2026; the demo video was recorded from the live URL. Entered in SLAY Hacks 2026 (submitted 7 Nov 2026), GenHacks (12 Nov 2026), UKIS 2026, AI Kaushal, Tech4Bharat and INNOVATE INDIA. See `RELEASE_CARD.md` for the full build and QA record.
