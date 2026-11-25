@@ -55,6 +55,21 @@
     padding:10px 12px;font-size:14px;margin-top:14px;display:none;}
   .parsed b{color:var(--green-deep);}
   .parsed .edit-note{color:var(--ink-soft);font-size:13px;}
+  /* ---------- hero 3D category ring ---------- */
+  .hero3d-wrap{margin:18px 0 0; border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; background:#0E3B20; position:relative}
+  .hero3d-wrap canvas{display:block; width:100%; height:300px; touch-action:none}
+  .hero3d-cap{margin:0; padding:9px 14px; font-size:13px; color:#D9EADF; background:#0E3B20; border-top:1px solid rgba(255,255,255,.15)}
+  .hero3d-cap b{color:#fff}
+  .scroll-cue{display:inline-flex; gap:8px; margin-top:14px; font-size:15px; font-weight:700; color:var(--green); text-decoration:none}
+  .scroll-cue:hover{text-decoration:underline}
+  .scroll-cue .arr{animation:bob 1.8s ease-in-out infinite}
+  @keyframes bob{0%,100%{transform:translateY(0)} 50%{transform:translateY(4px)}}
+  .landing-band{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:20px 0 0}
+  .landing-band .kicker{display:block; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; color:var(--marigold); margin-bottom:8px}
+  .landing-band h2{font-size:17px}
+  .landing-band p{margin:0; font-size:14px; color:var(--ink-soft)}
+  @media (max-width:900px){ .landing-band{grid-template-columns:1fr} .hero3d-wrap canvas{height:230px} }
+  @media (prefers-reduced-motion: reduce){ .scroll-cue .arr{animation:none} }
   /* ---- Mandala (3D) ---- */
   .mandala-wrap{text-align:center;padding:6px 0 2px;}
   .stage{height:230px;perspective:900px;position:relative;overflow:hidden;}
@@ -138,9 +153,31 @@
     <strong>which ones are yours, which ones you are close to, and exactly why</strong> — with the
     documents and the next step for each.</p>
   <span class="privacy">🔒 Fully on-device · No account · No upload · Nothing you type leaves this machine</span>
+  <div class="hero3d-wrap" id="hero3dWrap">
+    <canvas id="hero3d" aria-label="3D ring of scheme categories, turning on its own. Drag to spin it."></canvas>
+    <p class="hero3d-cap"><b>Every category, on one ring.</b> Education, farming, business, housing, health and more &mdash; turning on its own. Pick a category below and the list follows.</p>
+  </div>
+  <a class="scroll-cue" href="#tool"><span class="arr" aria-hidden="true">&darr;</span> Scroll &mdash; check your schemes</a>
+  <div class="landing-band">
+    <article class="card">
+      <span class="kicker">The problem</span>
+      <h2>Hundreds of schemes, no map</h2>
+      <p>The government lists hundreds of schemes across many portals. Most people never find the ones made for them &mdash; or find out too late.</p>
+    </article>
+    <article class="card">
+      <span class="kicker">The solution</span>
+      <h2>Say it in your own words</h2>
+      <p>Describe your situation in plain English or Hinglish. SchemeSathi checks 18 real schemes rule by rule and shows the verdict for each &mdash; with the reason.</p>
+    </article>
+    <article class="card">
+      <span class="kicker">The outcome</span>
+      <h2>A list you can act on</h2>
+      <p>Yours, close, or not yours &mdash; with the documents and the next step for each. Nothing to guess, nothing to apply for blindly.</p>
+    </article>
+  </div>
 </header>
 
-<main>
+<main id="tool"><main>
   <div class="grid">
     <!-- ============ LEFT: tell us about yourself ============ -->
     <section class="card" aria-label="Tell us about yourself">
@@ -572,6 +609,132 @@ $("#clear-btn").addEventListener("click", ()=>{
   $("#results-area").innerHTML = `<div class="empty" id="empty-state"><b>Your schemes will appear here</b>Describe yourself on the left and press “Check my schemes”.</div>`;
   setCategory("All");
 });
+</script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  var wrap = document.getElementById("hero3dWrap");
+  var canvas = document.getElementById("hero3d");
+  if (!wrap || !canvas) return;
+  if (typeof THREE === "undefined") { wrap.style.display = "none"; return; }
+  var reducedMQ = window.matchMedia("(prefers-reduced-motion: reduce)");
+  function lowMotion() { return reducedMQ.matches; }
+  var renderer;
+  try {
+    renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+  } catch (e) { wrap.style.display = "none"; return; }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  var scene = new THREE.Scene();
+  var camera = new THREE.PerspectiveCamera(50, 2, 0.1, 100);
+  camera.position.set(0, 1.2, 10);
+  var ring = new THREE.Group();
+  ring.rotation.x = 0.42;
+  scene.add(ring);
+  // Saffron core: the citizen at the centre of the schemes.
+  var core = new THREE.Mesh(
+    new THREE.SphereGeometry(0.7, 32, 32),
+    new THREE.MeshBasicMaterial({ color: 0xf59e0b })
+  );
+  ring.add(core);
+  var shell = new THREE.Mesh(
+    new THREE.IcosahedronGeometry(1.05, 1),
+    new THREE.MeshBasicMaterial({ color: 0xf59e0b, wireframe: true, transparent: true, opacity: 0.35 })
+  );
+  ring.add(shell);
+  // Eight scheme categories on the ring, one colour each.
+  var catCols = [0x1d4e89, 0x2e7d32, 0xe8821a, 0xd9a441, 0xb3372f, 0x0e7c7b, 0x7c3aed, 0xdb2777];
+  var linePts = [];
+  for (var i = 0; i < 8; i++) {
+    var a = (i / 8) * Math.PI * 2;
+    var x = Math.cos(a) * 3.6, y = Math.sin(a) * 3.6, z = 0;
+    var orb = new THREE.Mesh(
+      new THREE.SphereGeometry(0.32, 20, 20),
+      new THREE.MeshBasicMaterial({ color: catCols[i] })
+    );
+    orb.position.set(x, y, z);
+    ring.add(orb);
+    linePts.push(0, 0, 0, x, y, z);
+  }
+  var spokes = new THREE.LineSegments(
+    new THREE.BufferGeometry().setAttribute("position",
+      new THREE.Float32BufferAttribute(linePts, 3)),
+    new THREE.LineBasicMaterial({ color: 0xfdf0da, transparent: true, opacity: 0.45 })
+  );
+  ring.add(spokes);
+  // Ring lines: saffron inner, green outer.
+  function circleLine(radius, color, opacity) {
+    var pts = [];
+    for (var k = 0; k <= 64; k++) {
+      var ra = (k / 64) * Math.PI * 2;
+      pts.push(Math.cos(ra) * radius, Math.sin(ra) * radius, 0);
+    }
+    return new THREE.Line(
+      new THREE.BufferGeometry().setAttribute("position",
+        new THREE.Float32BufferAttribute(pts, 3)),
+      new THREE.LineBasicMaterial({ color: color, transparent: true, opacity: opacity })
+    );
+  }
+  ring.add(circleLine(3.6, 0xf59e0b, 0.5));
+  ring.add(circleLine(4.9, 0x14532d, 0.3));
+  // Deterministic warm starfield behind the ring.
+  var seed = 11;
+  function rnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
+  var starPts = [];
+  for (var s = 0; s < 120; s++) {
+    var th = rnd() * Math.PI * 2, ph = Math.acos(2 * rnd() - 1), rr = 8 + rnd() * 6;
+    starPts.push(
+      rr * Math.sin(ph) * Math.cos(th),
+      rr * Math.sin(ph) * Math.sin(th) * 0.6,
+      rr * Math.cos(ph) - 4
+    );
+  }
+  var stars = new THREE.Points(
+    new THREE.BufferGeometry().setAttribute("position",
+      new THREE.Float32BufferAttribute(starPts, 3)),
+    new THREE.PointsMaterial({ color: 0xfdf0da, size: 0.07, transparent: true, opacity: 0.8 })
+  );
+  scene.add(stars);
+  function resize() {
+    var w = wrap.clientWidth, h = canvas.clientHeight || 300;
+    if (!w || !h) return;
+    renderer.setSize(w, h, false);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+  }
+  window.addEventListener("resize", resize);
+  resize();
+  var rotY = 0, dragging = false, lastX = 0, lastY = 0, lastMove = 0, visible = true, running = false;
+  canvas.addEventListener("pointerdown", function (e) {
+    dragging = true; lastX = e.clientX; lastY = e.clientY;
+    canvas.setPointerCapture(e.pointerId);
+  });
+  canvas.addEventListener("pointermove", function (e) {
+    if (!dragging) return;
+    rotY += (e.clientX - lastX) * 0.008;
+    ring.rotation.x = Math.max(-0.2, Math.min(1.1, ring.rotation.x - (e.clientY - lastY) * 0.004));
+    lastX = e.clientX; lastY = e.clientY; lastMove = performance.now();
+  });
+  function endDrag() { dragging = false; lastMove = performance.now(); }
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+  if ("IntersectionObserver" in window) {
+    new IntersectionObserver(function (entries) { visible = entries[0].isIntersecting; },
+      { threshold: 0.05 }).observe(wrap);
+  }
+  function draw() { renderer.render(scene, camera); }
+  function tick() {
+    if (!running) return;
+    if (lowMotion()) { draw(); running = false; return; }
+    if (!dragging && performance.now() - lastMove > 3000) rotY += 0.0035;
+    ring.rotation.y = rotY;
+    if (visible && !document.hidden) draw();
+    requestAnimationFrame(tick);
+  }
+  function start() { if (!running) { running = true; lastMove = performance.now(); requestAnimationFrame(tick); } }
+  if (reducedMQ.addEventListener) reducedMQ.addEventListener("change", start);
+  start();
+})();
 </script>
 </body>
 </html>
